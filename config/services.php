@@ -12,6 +12,10 @@ return static function (ContainerConfigurator $container): void {
                 ->autowire()
                 ->autoconfigure()
                 ->tag('controller.service_arguments')
+                
+            ->set(\Respatch\RespatchBundle\Helper\ApiHelper::class)
+                ->autowire()
+                ->autoconfigure()
 
             ->set('respatch.authenticator', \Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class)
                 ->arg('$configuredToken', '%respatch.token%')
