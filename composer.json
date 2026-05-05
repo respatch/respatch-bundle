@@ -1,0 +1,25 @@
+{
+    "name": "tito10047/respatch-bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "description": "Acme bundle description",
+    "minimum-stability": "stable",
+    "require": {
+        "php": ">=8.1",
+        "symfony/framework-bundle": "^6.4|^7.0",
+        "zenstruck/messenger-monitor-bundle": "^0.6.0"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "Tito10047\\RespatchBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tito10047\\RespatchBundle\\Tests\\": "tests/"
+        }
+    }
+}
