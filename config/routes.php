@@ -1,6 +1,6 @@
 <?php
 
-use Tito10047\RespatchBundle\Controller\HelloController;
+use Respatch\RespatchBundle\Controller\HelloController;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
@@ -8,8 +8,11 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
  */
 return static function (RoutingConfigurator $routes): void {
     $routes
-        ->add('tito10047_respatch_hello_controller', '/')
+        ->add('Respatch_respatch_hello_controller', '/')
             ->controller(HelloController::class)
+            ->methods(['GET'])
+        ->add('respatch_api_status', '/status')
+            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, '__invoke'])
             ->methods(['GET'])
     ;
 };

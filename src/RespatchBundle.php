@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\RespatchBundle;
+namespace Respatch\RespatchBundle;
 
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -19,6 +19,7 @@ class RespatchBundle extends AbstractBundle
     
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        $builder->setParameter('respatch.token', $config['token'] ?? '');
         $container->import('../config/services.php');
     }
 }

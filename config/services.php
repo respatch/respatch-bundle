@@ -7,11 +7,14 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
  */
 return static function (ContainerConfigurator $container): void {
     $container
-        ->parameters()
-            // ->set('tito10047_respatch.param_name', 'param_value');
-    ;
-    $container
         ->services()
-            // ->set('tito10047_respatch.service_name', 'service_class')
+            ->set(\Respatch\RespatchBundle\Controller\ApiController::class)
+                ->autowire()
+                ->autoconfigure()
+                ->tag('controller.service_arguments')
+
+            ->set('respatch.authenticator', \Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class)
+                ->arg('$configuredToken', '%respatch.token%')
+                ->alias(\Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class, 'respatch.authenticator')
     ;
 };

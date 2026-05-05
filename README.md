@@ -11,7 +11,7 @@ of the Composer documentation.
 Open a command console, enter your project directory and execute:
 
 ```console
-$ composer require tito10047/respatch-bundle
+$ composer require Respatch/respatch-bundle
 ```
 
 ### Applications that don't use Symfony Flex
@@ -22,7 +22,7 @@ Open a command console, enter your project directory and execute the
 following command to download the latest stable version of this bundle:
 
 ```console
-$ composer require tito10047/respatch-bundle
+$ composer require Respatch/respatch-bundle
 ```
 
 #### Step 2: Enable the Bundle
@@ -35,6 +35,6 @@ in the `config/bundles.php` file of your project:
 
 return [
     // ...
-    Tito10047\RespatchBundle\RespatchBundle::class => ['all' => true],
+    Respatch\RespatchBundle\RespatchBundle::class => ['all' => true],
 ];
 ```

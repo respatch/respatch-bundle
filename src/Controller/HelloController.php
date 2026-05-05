@@ -1,6 +1,6 @@
 <?php
 
-namespace Tito10047\RespatchBundle\Controller;
+namespace Respatch\RespatchBundle\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
