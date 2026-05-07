@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Respatch\RespatchBundle\Controller;
 
+use Respatch\RespatchBundle\Attribute\ResponseSchema;
 use Respatch\RespatchBundle\Helper\ApiHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -11,12 +14,22 @@ use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\SentToFailureTransportStamp;
 use Symfony\Component\Messenger\Stamp\TransportNamesStamp;
 use Symfony\Component\Scheduler\Generator\MessageContext;
+use Zenstruck\Bytes;
 use Zenstruck\Messenger\Monitor\History\Period;
 use Zenstruck\Messenger\Monitor\History\Specification;
 use Zenstruck\Messenger\Monitor\Stamp\TagStamp;
+use Zenstruck\Messenger\Monitor\Transport\TransportInfo;
+use Zenstruck\Messenger\Monitor\Worker\WorkerInfo;
 
 class ApiController extends AbstractController
 {
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['status'],
+        'properties' => [
+            'status' => ['type' => 'string'],
+        ],
+    ])]
     public function status(): JsonResponse
     {
         return $this->json([
@@ -24,6 +37,64 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['snapshot', 'messages'],
+        'properties' => [
+            'snapshot' => [
+                'type' => 'object',
+                'required' => ['successCount', 'failureCount', 'averageWaitTime', 'averageHandlingTime', 'totalSeconds'],
+                'properties' => [
+                    'specification' => ['type' => 'array'],
+                    'successCount' => ['type' => 'integer'],
+                    'failureCount' => ['type' => 'integer'],
+                    'averageWaitTime' => ['type' => 'integer'],
+                    'averageHandlingTime' => ['type' => 'integer'],
+                    'totalSeconds' => ['type' => 'integer'],
+                ],
+            ],
+            'messages' => [
+                'type' => 'array',
+                'items' => [
+                    'type' => 'object',
+                    'required' => ['id', 'runId', 'attempt', 'type', 'dispatchedAt', 'receivedAt', 'finishedAt', 'transport', 'tags', 'results', 'failure', 'memoryUsage'],
+                    'properties' => [
+                        'id' => ['type' => ['integer', 'string', 'null']],
+                        'runId' => ['type' => 'integer'],
+                        'attempt' => ['type' => 'integer'],
+                        'type' => [
+                            'type' => 'object',
+                            'required' => ['class'],
+                            'properties' => [
+                                'class' => ['type' => 'string'],
+                                'object' => ['type' => ['object', 'null']],
+                                'description' => ['type' => ['string', 'null']],
+                            ],
+                        ],
+                        'description' => ['type' => ['string', 'null']],
+                        'dispatchedAt' => ['type' => 'string'],
+                        'receivedAt' => ['type' => 'string'],
+                        'finishedAt' => ['type' => 'string'],
+                        'transport' => ['type' => 'string'],
+                        'tags' => ['type' => 'array', 'items' => ['type' => 'string']],
+                        'results' => [
+                            'type' => 'array',
+                            'items' => [
+                                'type' => 'object',
+                                'required' => ['handler'],
+                                'properties' => [
+                                    'data' => ['type' => 'array'],
+                                    'handler' => ['type' => 'string'],
+                                ],
+                            ],
+                        ],
+                        'failure' => ['type' => 'boolean'],
+                        'memoryUsage' => ['type' => 'integer'],
+                    ],
+                ],
+            ],
+        ],
+    ])]
     public function dashboard(ApiHelper $helper): JsonResponse
     {
         return $this->json([
@@ -32,6 +103,15 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['periods', 'period', 'metrics'],
+        'properties' => [
+            'periods' => ['type' => 'array'],
+            'period' => ['type' => ['string', 'null', 'object']],
+            'metrics' => ['type' => 'array'],
+        ],
+    ])]
     public function statistics(Request $request, ApiHelper $helper): JsonResponse
     {
         $period = Period::parse($request->query->getString('period'));
@@ -46,6 +126,25 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['periods', 'period', 'snapshot', 'filters'],
+        'properties' => [
+            'periods' => ['type' => 'array'],
+            'period' => ['type' => ['string', 'null', 'object']],
+            'snapshot' => [
+                'type' => 'object',
+                'required' => ['successCount', 'failureCount', 'averageWaitTime', 'averageHandlingTime'],
+                'properties' => [
+                    'successCount' => ['type' => 'integer'],
+                    'failureCount' => ['type' => 'integer'],
+                    'averageWaitTime' => ['type' => 'integer'],
+                    'averageHandlingTime' => ['type' => 'integer'],
+                ],
+            ],
+            'filters' => ['type' => ['object', 'array']],
+        ],
+    ])]
     public function history(Request $request, ApiHelper $helper): JsonResponse
     {
         $tags = [$request->query->get('tag')];
@@ -75,6 +174,14 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['message', 'other_attempts'],
+        'properties' => [
+            'message' => ['type' => ['object', 'null']],
+            'other_attempts' => ['type' => 'array'],
+        ],
+    ])]
     public function detail(string $id, ApiHelper $helper): JsonResponse
     {
         if (!$message = $helper->storage()->find($id)) {
@@ -95,17 +202,24 @@ class ApiController extends AbstractController
             throw new \LogicException('No countable transports configured.');
         }
 
-        if (!$name) {
-            $name = $countable->names()[0] ?? null;
-        }
+		$transports =array_map(fn(TransportInfo $info)=>[
+			"count"=>$info->isCountable()? $info->count():null,
+			"workers"=>$info->isFailure()?"n/a":count($info->workers()),
+			"usedWorkers"=>$info->isFailure()?"n/a":array_sum(array_map(fn(WorkerInfo $worker)=>$worker->isProcessing()?1:0,$info->workers())),
+			"memory"=>new Bytes(array_sum(array_map(fn(WorkerInfo $worker)=>$worker->memoryUsage()->value(),$info->workers())))->format(),
+		], $helper->transports->filter()->excludeSync()->excludeFailed()->all());
 
-        return $this->json([
-            'transports' => $countable,
-            'transport' => $name ? $helper->transports->get($name) : null,
-            'limit' => $request->query->getInt('limit', 50),
-        ]);
+        return $this->json($transports);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['success', 'message'],
+        'properties' => [
+            'success' => ['type' => 'boolean'],
+            'message' => ['type' => 'string'],
+        ],
+    ])]
     public function removeTransportMessage(string $name, string $id, ApiHelper $helper): JsonResponse
     {
         $transport = $helper->transports->get($name);
@@ -119,6 +233,14 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['success', 'message'],
+        'properties' => [
+            'success' => ['type' => 'boolean'],
+            'message' => ['type' => 'string'],
+        ],
+    ])]
     public function retryFailedMessage(string $name, string $id, ApiHelper $helper, MessageBusInterface $bus): JsonResponse
     {
         $transport = $helper->transports->get($name);
@@ -137,6 +259,15 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['schedules', 'transports'],
+        'properties' => [
+            'schedules' => ['type' => 'array'],
+            'schedule' => ['type' => ['object', 'null']],
+            'transports' => ['type' => 'array'],
+        ],
+    ])]
     public function schedules(ApiHelper $helper, ?string $name = null): JsonResponse
     {
         if (!$helper->schedules) {
@@ -154,6 +285,14 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['success', 'message'],
+        'properties' => [
+            'success' => ['type' => 'boolean'],
+            'message' => ['type' => 'string'],
+        ],
+    ])]
     public function triggerScheduleTask(
         string $name,
         string $id,
@@ -192,6 +331,13 @@ class ApiController extends AbstractController
         ]);
     }
 
+    #[ResponseSchema(schema: [
+        'type' => 'object',
+        'required' => ['workers'],
+        'properties' => [
+            'workers' => ['type' => 'array'],
+        ],
+    ])]
     public function workersWidget(ApiHelper $helper): JsonResponse
     {
         return $this->json([

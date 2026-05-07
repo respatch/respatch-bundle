@@ -1,5 +1,8 @@
 <?php
 
+use Respatch\RespatchBundle\Cache\ResponseSchemaWarmer;
+use Respatch\RespatchBundle\Controller\ApiController;
+use Respatch\RespatchBundle\EventListener\ResponseSchemaListener;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 /**
@@ -20,5 +23,15 @@ return static function (ContainerConfigurator $container): void {
             ->set('respatch.authenticator', \Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class)
                 ->arg('$configuredToken', '%respatch.token%')
                 ->alias(\Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class, 'respatch.authenticator')
+
+            ->set(ResponseSchemaWarmer::class)
+                ->arg('$controllerClasses', [ApiController::class])
+                ->tag('kernel.cache_warmer')
+
+            ->set(ResponseSchemaListener::class)
+                ->arg('$cacheDir', '%kernel.cache_dir%')
+                ->arg('$environment', '%kernel.environment%')
+                ->autowire()
+                ->tag('kernel.event_listener', ['event' => 'kernel.response', 'method' => 'onKernelResponse'])
     ;
 };
