@@ -57,5 +57,9 @@ return static function (RoutingConfigurator $routes): void {
         ->add('respatch_api_workers', '/workers')
             ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'workersWidget'])
             ->methods(['GET'])
+
+        ->add('respatch_api_workers', '/recent-messages')
+            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'recentMessages'])
+            ->methods(['GET'])
     ;
 };

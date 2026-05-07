@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Respatch\RespatchBundle\Controller;
 
+use App\Entity\ProcessedMessage;
+use DateTimeInterface;
 use Respatch\RespatchBundle\Attribute\ResponseSchema;
 use Respatch\RespatchBundle\Helper\ApiHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -101,6 +103,22 @@ class ApiController extends AbstractController
             'snapshot' => Specification::create(Period::IN_LAST_DAY)->snapshot($helper->storage()),
             'messages' => Specification::new()->snapshot($helper->storage())->messages(),
         ]);
+    }
+
+
+    public function recentMessages(Request $request, ApiHelper $helper): JsonResponse
+    {
+		$messages = Specification::new()->snapshot($helper->storage())->messages()->take(25);
+		$result = $messages->map(fn(ProcessedMessage $message)=>[
+			"id"=>$message->id(),
+			"status"=>$message->failure()?->description(),
+			"transport"=>$message->transport(),
+			"duration"=>$message->timeToProcess(),
+			"memory"=>$message->memoryUsage()->format(),
+			"handledAt"=>$message->finishedAt()->format(DateTimeInterface::ATOM),
+		]);
+
+        return $this->json($result);
     }
 
     #[ResponseSchema(schema: [
