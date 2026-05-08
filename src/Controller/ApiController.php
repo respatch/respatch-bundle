@@ -111,6 +111,7 @@ class ApiController extends AbstractController
 		$messages = Specification::new()->snapshot($helper->storage())->messages()->take(25);
 		$result = $messages->map(fn(ProcessedMessage $message)=>[
 			"id"=>$message->id(),
+			"title"=>$message->type()->class(),
 			"status"=>$message->failure()?->description(),
 			"transport"=>$message->transport(),
 			"duration"=>$message->timeToProcess(),
