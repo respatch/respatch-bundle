@@ -139,7 +139,7 @@ class ApiController extends AbstractController {
 
 
 	public function retryFailedMessage(Request $request, ApiHelper $helper, MessageBusInterface $bus, string $name, string $id): JsonResponse {
-		$helper->validateCsrfToken($request->request->getString('_token'), 'remove', $name, $id);
+		$helper->validateCsrfToken($request->query->getString('_token'), 'retry', $name, $id);
 		$transport             = $helper->transports->get($name);
 		$message               = $transport->find($id) ?? throw $this->createNotFoundException('Message not found.');
 		$originalTransportName = $message->envelope()->last(SentToFailureTransportStamp::class)?->getOriginalReceiverName() ?? throw $this->createNotFoundException('Original transport not found.');
