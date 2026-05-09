@@ -264,26 +264,27 @@ class ApiController extends AbstractController {
 		$messages = $transport->list($limit)->getIterator()
 				|> iterator_to_array(...)
 				|> (fn($x) => array_map(fn(QueuedMessage $message) => [
-					"id"         => $message->id(),
-					"title"      => $message->message()->shortName(),
-					"dispatched" => $message->dispatchedAt()->format(DateTimeInterface::ATOM),
-					"deleteToken"=>$helper->generateCsrfToken('remove', $name,$message->id()),
-					"retryToken" => $helper->generateCsrfToken('retry', $name,$message->id()),
-					"exception"  =>  $message->exception()?[
+					"id"          => $message->id(),
+					"title"       => $message->message()->shortName(),
+					"transport"   => $name,
+					"dispatched"  => $message->dispatchedAt()->format(DateTimeInterface::ATOM),
+					"deleteToken" => $helper->generateCsrfToken('remove', $name,(string) $message->id()),
+					"retryToken"  => $helper->generateCsrfToken('retry', $name, (string)$message->id()),
+					"exception"   => $message->exception() ? [
 						"class"       => $message->exception()->shortName(),
 						"description" => $message->exception()->description(),
 						"name"        => $message->exception()->class()
-					]:null,
+					] : null,
 				], $x));
 
 		return $this->json($messages);
 	}
 
 
+	public function removeTransportMessage(Request $request, ApiHelper $helper, string $name, string $id): JsonResponse {
 
-	public function removeTransportMessage(Request $request, ApiHelper $helper,string $name, string $id): JsonResponse {
 
-		$helper->validateCsrfToken($request->request->getString('_token'), 'remove', $name, $id);
+		$helper->validateCsrfToken($request->query->getString('_token'), 'remove', $name, $id);
 
 		$transport = $helper->transports->get($name);
 		$message   = $transport->find($id) ?? throw $this->createNotFoundException('Message not found.');
@@ -294,7 +295,8 @@ class ApiController extends AbstractController {
 	}
 
 
-	public function retryFailedMessage(string $name, string $id, ApiHelper $helper, MessageBusInterface $bus): JsonResponse {
+	public function retryFailedMessage(Request $request, ApiHelper $helper, MessageBusInterface $bus, string $name, string $id): JsonResponse {
+		$helper->validateCsrfToken($request->request->getString('_token'), 'remove', $name, $id);
 		$transport             = $helper->transports->get($name);
 		$message               = $transport->find($id) ?? throw $this->createNotFoundException('Message not found.');
 		$originalTransportName = $message->envelope()->last(SentToFailureTransportStamp::class)?->getOriginalReceiverName() ?? throw $this->createNotFoundException('Original transport not found.');

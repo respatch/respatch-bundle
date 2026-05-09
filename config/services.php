@@ -19,6 +19,7 @@ return static function (ContainerConfigurator $container): void {
             ->set(\Respatch\RespatchBundle\Helper\ApiHelper::class)
                 ->autowire()
                 ->autoconfigure()
+                ->arg('$appSecret', '%env(APP_SECRET)%')
 
             ->set('respatch.authenticator', \Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class)
                 ->arg('$configuredToken', '%respatch.token%')

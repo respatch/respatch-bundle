@@ -44,7 +44,7 @@ return static function (RoutingConfigurator $routes): void {
 
         ->add('respatch_api_transport_remove', '/transport/{name}/{id}/remove')
             ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'removeTransportMessage'])
-            ->methods(['POST'])
+            ->methods(['POST',"GET"])
 
         ->add('respatch_api_transport_retry', '/transport/{name}/{id}/retry')
             ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'retryFailedMessage'])

@@ -3,8 +3,6 @@
 namespace Respatch\RespatchBundle\Helper;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Symfony\Component\Security\Csrf\CsrfToken;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Zenstruck\Messenger\Monitor\History\Storage;
 use Zenstruck\Messenger\Monitor\Schedules;
 use Zenstruck\Messenger\Monitor\Transports;
@@ -17,7 +15,7 @@ class ApiHelper
         public readonly Workers $workers,
         private readonly ?Storage $storage,
         public readonly ?Schedules $schedules,
-		private readonly ?CsrfTokenManagerInterface $csrfTokenManager,
+		private readonly string $appSecret,
     ) {
     }
 
@@ -28,20 +26,13 @@ class ApiHelper
 
 	public function generateCsrfToken(string ...$parts): string
 	{
-		if (!$this->csrfTokenManager) {
-			return '';
-		}
-
-		return $this->csrfTokenManager->getToken(self::csrfTokenId(...$parts));
+		return hash_hmac('sha256', self::csrfTokenId(...$parts), $this->appSecret);
 	}
 
 	public function validateCsrfToken(string $token, string ...$parts): void
 	{
-		if (!$this->csrfTokenManager) {
-			return;
-		}
-
-		if (!$this->csrfTokenManager->isTokenValid(new CsrfToken(self::csrfTokenId(...$parts), $token))) {
+		$expected = $this->generateCsrfToken(...$parts);
+		if (!hash_equals($expected, $token)) {
 			throw new HttpException(419, 'Invalid CSRF token.');
 		}
 	}
