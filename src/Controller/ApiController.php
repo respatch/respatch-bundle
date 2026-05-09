@@ -36,7 +36,6 @@ class ApiController extends AbstractController {
 	}
 
 
-
 	public function recentMessages(Request $request, ApiHelper $helper): JsonResponse {
 		$messages = Specification::new()->snapshot($helper->storage())->messages()->take(25);
 		$result   = $messages->map(fn(ProcessedMessage $message) => [
@@ -44,6 +43,7 @@ class ApiController extends AbstractController {
 			"title"     => $message->type()->class(),
 			"status"    => $message->failure()?->description(),
 			"transport" => $message->transport(),
+			"class"     => $message->type()->class(),
 			"duration"  => $message->timeToProcess(),
 			"memory"    => $message->memoryUsage()->format(),
 			"handledAt" => $message->finishedAt()->format(DateTimeInterface::ATOM),
@@ -108,10 +108,11 @@ class ApiController extends AbstractController {
 				|> (fn($x) => array_map(fn(QueuedMessage $message) => [
 					"id"          => $message->id(),
 					"title"       => $message->message()->shortName(),
+					"class"       => $message->message()->class(),
 					"transport"   => $name,
 					"dispatched"  => $message->dispatchedAt()->format(DateTimeInterface::ATOM),
-					"deleteToken" => $helper->generateCsrfToken('remove', $name,(string) $message->id()),
-					"retryToken"  => $helper->generateCsrfToken('retry', $name, (string)$message->id()),
+					"deleteToken" => $helper->generateCsrfToken('remove', $name, (string) $message->id()),
+					"retryToken"  => $helper->generateCsrfToken('retry', $name, (string) $message->id()),
 					"exception"   => $message->exception() ? [
 						"class"       => $message->exception()->shortName(),
 						"description" => $message->exception()->description(),
