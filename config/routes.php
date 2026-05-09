@@ -32,7 +32,7 @@ return static function (RoutingConfigurator $routes): void {
             ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'detail'])
             ->methods(['GET'])
 
-        ->add('respatch_api_transport', '/transports')
+        ->add('respatch_api_transports', '/transports')
             ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'transports'])
             ->methods(['GET'])
             ->defaults(['name' => null])

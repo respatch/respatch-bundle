@@ -267,6 +267,8 @@ class ApiController extends AbstractController {
 					"id"         => $message->id(),
 					"title"      => $message->message()->shortName(),
 					"dispatched" => $message->dispatchedAt()->format(DateTimeInterface::ATOM),
+					"deleteToken"=>$helper->generateCsrfToken('remove', $name,$message->id()),
+					"retryToken" => $helper->generateCsrfToken('retry', $name,$message->id()),
 					"exception"  =>  $message->exception()?[
 						"class"       => $message->exception()->shortName(),
 						"description" => $message->exception()->description(),
@@ -278,34 +280,20 @@ class ApiController extends AbstractController {
 	}
 
 
-	#[ResponseSchema(schema: [
-		'type'       => 'object',
-		'required'   => ['success', 'message'],
-		'properties' => [
-			'success' => ['type' => 'boolean'],
-			'message' => ['type' => 'string'],
-		],
-	])]
-	public function removeTransportMessage(string $name, string $id, ApiHelper $helper): JsonResponse {
+
+	public function removeTransportMessage(Request $request, ApiHelper $helper,string $name, string $id): JsonResponse {
+
+		$helper->validateCsrfToken($request->request->getString('_token'), 'remove', $name, $id);
+
 		$transport = $helper->transports->get($name);
 		$message   = $transport->find($id) ?? throw $this->createNotFoundException('Message not found.');
 
 		$transport->get()->reject($message->envelope());
 
-		return $this->json([
-			'success' => true,
-			'message' => \sprintf('Message "%s" removed from transport "%s".', $message->message()->shortName(), $name),
-		]);
+		return new JsonResponse(null, 204);
 	}
 
-	#[ResponseSchema(schema: [
-		'type'       => 'object',
-		'required'   => ['success', 'message'],
-		'properties' => [
-			'success' => ['type' => 'boolean'],
-			'message' => ['type' => 'string'],
-		],
-	])]
+
 	public function retryFailedMessage(string $name, string $id, ApiHelper $helper, MessageBusInterface $bus): JsonResponse {
 		$transport             = $helper->transports->get($name);
 		$message               = $transport->find($id) ?? throw $this->createNotFoundException('Message not found.');
