@@ -1,5 +1,5 @@
 {
-    "name": "respatch/respatch-bundle",
+    "name": "mostka-sk/respatch-bundle",
     "type": "symfony-bundle",
     "license": "MIT",
     "description": "Acme bundle description",
