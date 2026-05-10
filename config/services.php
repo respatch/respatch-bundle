@@ -1,8 +1,8 @@
 <?php
 
-use Respatch\RespatchBundle\Cache\ResponseSchemaWarmer;
-use Respatch\RespatchBundle\Controller\ApiController;
-use Respatch\RespatchBundle\EventListener\ResponseSchemaListener;
+use MostkaSk\RespatchBundle\Cache\ResponseSchemaWarmer;
+use MostkaSk\RespatchBundle\Controller\ApiController;
+use MostkaSk\RespatchBundle\EventListener\ResponseSchemaListener;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 /**
@@ -11,19 +11,19 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 return static function (ContainerConfigurator $container): void {
     $container
         ->services()
-            ->set(\Respatch\RespatchBundle\Controller\ApiController::class)
+            ->set(\MostkaSk\RespatchBundle\Controller\ApiController::class)
                 ->autowire()
                 ->autoconfigure()
                 ->tag('controller.service_arguments')
                 
-            ->set(\Respatch\RespatchBundle\Helper\ApiHelper::class)
+            ->set(\MostkaSk\RespatchBundle\Helper\ApiHelper::class)
                 ->autowire()
                 ->autoconfigure()
                 ->arg('$appSecret', '%env(APP_SECRET)%')
 
-            ->set('respatch.authenticator', \Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class)
+            ->set('respatch.authenticator', \MostkaSk\RespatchBundle\Security\RespatchTokenAuthenticator::class)
                 ->arg('$configuredToken', '%respatch.token%')
-                ->alias(\Respatch\RespatchBundle\Security\RespatchTokenAuthenticator::class, 'respatch.authenticator')
+                ->alias(\MostkaSk\RespatchBundle\Security\RespatchTokenAuthenticator::class, 'respatch.authenticator')
 
     ;
 };

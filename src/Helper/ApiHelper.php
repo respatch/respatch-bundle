@@ -1,6 +1,6 @@
 <?php
 
-namespace Respatch\RespatchBundle\Helper;
+namespace MostkaSk\RespatchBundle\Helper;
 
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Zenstruck\Messenger\Monitor\History\Storage;

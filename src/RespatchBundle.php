@@ -1,6 +1,6 @@
 <?php
 
-namespace Respatch\RespatchBundle;
+namespace MostkaSk\RespatchBundle;
 
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

@@ -1,6 +1,6 @@
 <?php
 
-use Respatch\RespatchBundle\Controller\HelloController;
+use MostkaSk\RespatchBundle\Controller\HelloController;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
@@ -13,58 +13,58 @@ return static function (RoutingConfigurator $routes): void {
             ->methods(['GET'])
             
         ->add('respatch_api_status', '/status')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'status'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'status'])
             ->methods(['GET'])
 
         ->add('respatch_api_dashboard', '/dashboard')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'dashboard'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'dashboard'])
             ->methods(['GET'])
 
         ->add('respatch_api_statistics', '/statistics')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'statistics'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'statistics'])
             ->methods(['GET'])
 
         ->add('respatch_api_history', '/history')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'history'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'history'])
             ->methods(['GET'])
 
         ->add('respatch_api_detail', '/history/{id}')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'detail'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'detail'])
             ->methods(['GET'])
 
         ->add('respatch_api_transports', '/transports')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'transports'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'transports'])
             ->methods(['GET'])
             ->defaults(['name' => null])
 
         ->add('respatch_api_transport', '/transport/{name}')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'transport'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'transport'])
             ->methods(['GET'])
             ->defaults(['name' => null])
 
         ->add('respatch_api_transport_remove', '/transport/{name}/{id}/remove')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'removeTransportMessage'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'removeTransportMessage'])
             ->methods(['POST',"GET"])
 
         ->add('respatch_api_transport_retry', '/transport/{name}/{id}/retry')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'retryFailedMessage'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'retryFailedMessage'])
             ->methods(['POST'])
 
         ->add('respatch_api_schedule', '/schedule/{name}')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'schedules'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'schedules'])
             ->methods(['GET'])
             ->defaults(['name' => null])
 
         ->add('respatch_api_schedule_trigger', '/schedules/{name}/trigger/{id}/{transport}')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'triggerScheduleTask'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'triggerScheduleTask'])
             ->methods(['POST'])
 
         ->add('respatch_api_workers', '/workers')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'workersWidget'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'workersWidget'])
             ->methods(['GET'])
 
         ->add('respatch_api_workers', '/recent-messages')
-            ->controller([\Respatch\RespatchBundle\Controller\ApiController::class, 'recentMessages'])
+            ->controller([\MostkaSk\RespatchBundle\Controller\ApiController::class, 'recentMessages'])
             ->methods(['GET'])
     ;
 };

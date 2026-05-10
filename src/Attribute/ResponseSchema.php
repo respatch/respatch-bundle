@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Respatch\RespatchBundle\Attribute;
+namespace MostkaSk\RespatchBundle\Attribute;
 
 /**
  * Definuje očakávanú JSON štruktúru response pre daný controller action.

@@ -11,7 +11,7 @@ of the Composer documentation.
 Open a command console, enter your project directory and execute:
 
 ```console
-$ composer require Respatch/respatch-bundle
+$ composer require mostka-sk/respatch-bundle
 ```
 
 ### Applications that don't use Symfony Flex
@@ -22,7 +22,7 @@ Open a command console, enter your project directory and execute the
 following command to download the latest stable version of this bundle:
 
 ```console
-$ composer require Respatch/respatch-bundle
+$ composer require mostka-sk/respatch-bundle
 ```
 
 #### Step 2: Enable the Bundle
@@ -35,6 +35,6 @@ in the `config/bundles.php` file of your project:
 
 return [
     // ...
-    Respatch\RespatchBundle\RespatchBundle::class => ['all' => true],
+    MostkaSk\RespatchBundle\RespatchBundle::class => ['all' => true],
 ];
 ```

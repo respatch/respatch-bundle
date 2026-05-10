@@ -8,7 +8,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Respatch\RespatchBundle\Security;
+namespace MostkaSk\RespatchBundle\Security;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

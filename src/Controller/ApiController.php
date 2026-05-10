@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Respatch\RespatchBundle\Controller;
+namespace MostkaSk\RespatchBundle\Controller;
 
 use App\Entity\ProcessedMessage;
 use DateTimeInterface;
-use Respatch\RespatchBundle\Attribute\ResponseSchema;
-use Respatch\RespatchBundle\Helper\ApiHelper;
+use MostkaSk\RespatchBundle\Attribute\ResponseSchema;
+use MostkaSk\RespatchBundle\Helper\ApiHelper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

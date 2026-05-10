@@ -15,12 +15,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Respatch\\RespatchBundle\\": "src/"
+            "MostkaSk\\RespatchBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Respatch\\RespatchBundle\\Tests\\": "tests/"
+            "MostkaSk\\RespatchBundle\\Tests\\": "tests/"
         }
     }
 }
