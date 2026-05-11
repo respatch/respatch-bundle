@@ -5,7 +5,7 @@
     "description": "Acme bundle description",
     "minimum-stability": "stable",
     "require": {
-        "php": ">=8.5",
+        "php": "^8.2|^8.3|^8.4|^8.5",
         "opis/json-schema": "^2.6",
         "symfony/framework-bundle": "^6.4|^7.4|^8.0",
         "zenstruck/messenger-monitor-bundle": "^0.6.0"
