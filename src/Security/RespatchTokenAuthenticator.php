@@ -42,7 +42,9 @@ class RespatchTokenAuthenticator extends AbstractAuthenticator
 			throw new CustomUserMessageAuthenticationException('Respatch token is not configured on the server.');
 		}
 
-		if (null === $headerToken || !hash_equals($this->configuredToken, $headerToken)) {
+		$headerTokenHash = null !== $headerToken ? hash('sha256', $headerToken) : null;
+
+		if (null === $headerTokenHash || !hash_equals($this->configuredToken, $headerTokenHash)) {
 			throw new CustomUserMessageAuthenticationException('Invalid or missing Respatch token.');
 		}
 

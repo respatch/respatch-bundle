@@ -63,15 +63,24 @@ respatch_api:
 
 ## Configuration
 
-For the desktop application to communicate with your Symfony server, you need to set a security token.
+For the desktop application to communicate with your Symfony server, you need to set a security token. 
+To ensure security, the token stored on the server in `.env.local` must be a **SHA-256 hash** of your actual token. 
+**Note:** The Respatch desktop application itself expects the **original plain text token**, not the hash!
 
-1. Add the `RESPATCH_TOKEN` environment variable to your `.env` or `.env.local` file:
+1. Generate a SHA-256 hash of your chosen secret plain text token. You can do this via the command line:
 
-```env
-RESPATCH_TOKEN=some_secure_hash_token_123
+```console
+$ php -r "echo hash('sha256', 'my_super_secret_token_123') . PHP_EOL;"
+# Output: 818981442c8d28c347dd9c97b819619c62985f540b6cd6e6f157ad3d21b01775
 ```
 
-2. Create the `config/packages/respatch.yaml` file to pass this token to the bundle:
+2. Add the hashed value to your `.env` or `.env.local` file:
+
+```env
+RESPATCH_TOKEN=818981442c8d28c347dd9c97b819619c62985f540b6cd6e6f157ad3d21b01775
+```
+
+3. Create the `config/packages/respatch.yaml` file to pass this token to the bundle:
 
 ```yaml
 respatch:
