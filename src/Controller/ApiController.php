@@ -78,7 +78,7 @@ class ApiController extends AbstractController {
 			"count"       => $info->isCountable() ? $info->count() : null,
 			"workers"     => $info->isFailure() ? "n/a" : count($info->workers()),
 			"usedWorkers" => $info->isFailure() ? "n/a" : array_sum(array_map(fn(WorkerInfo $worker) => $worker->isProcessing() ? 1 : 0, $info->workers())),
-			"memory"      => new Bytes(array_sum(array_map(fn(WorkerInfo $worker) => $worker->memoryUsage()->value(), $info->workers())))->format(),
+			"memory"      => (new Bytes(array_sum(array_map(fn(WorkerInfo $worker) => $worker->memoryUsage()->value(), $info->workers()))))->format(),
 		], $helper->transports->filter()->excludeSync()->all());
 
 		return $this->json($transports);
@@ -103,22 +103,20 @@ class ApiController extends AbstractController {
 
 		$transport = $helper->transports->get($name);
 
-		$messages = $transport->list($limit)->getIterator()
-				|> iterator_to_array(...)
-				|> (fn($x) => array_map(fn(QueuedMessage $message) => [
-					"id"          => $message->id(),
-					"title"       => $message->message()->shortName(),
-					"class"       => $message->message()->class(),
-					"transport"   => $name,
-					"dispatched"  => $message->dispatchedAt()->format(DateTimeInterface::ATOM),
-					"deleteToken" => $helper->generateCsrfToken('remove', $name, (string) $message->id()),
-					"retryToken"  => $helper->generateCsrfToken('retry', $name, (string) $message->id()),
-					"exception"   => $message->exception() ? [
-						"class"       => $message->exception()->shortName(),
-						"description" => $message->exception()->description(),
-						"name"        => $message->exception()->class()
-					] : null,
-				], $x));
+		$messages = array_map(fn(QueuedMessage $message) => [
+			"id"          => $message->id(),
+			"title"       => $message->message()->shortName(),
+			"class"       => $message->message()->class(),
+			"transport"   => $name,
+			"dispatched"  => $message->dispatchedAt()->format(DateTimeInterface::ATOM),
+			"deleteToken" => $helper->generateCsrfToken('remove', $name, (string) $message->id()),
+			"retryToken"  => $helper->generateCsrfToken('retry', $name, (string) $message->id()),
+			"exception"   => $message->exception() ? [
+				"class"       => $message->exception()->shortName(),
+				"description" => $message->exception()->description(),
+				"name"        => $message->exception()->class()
+			] : null,
+		], iterator_to_array($transport->list($limit)->getIterator()));
 
 		return $this->json($messages);
 	}
