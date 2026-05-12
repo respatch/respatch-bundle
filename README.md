@@ -65,8 +65,38 @@ respatch_api:
 
 For the desktop application to communicate with your Symfony server, you need to set a security token.
 
-Add the `RESPATCH_TOKEN` environment variable to your `.env` or `.env.local` file:
+1. Add the `RESPATCH_TOKEN` environment variable to your `.env` or `.env.local` file:
 
 ```env
 RESPATCH_TOKEN=some_secure_hash_token_123
 ```
+
+2. Create the `config/packages/respatch.yaml` file to pass this token to the bundle:
+
+```yaml
+respatch:
+    token: '%env(RESPATCH_TOKEN)%'
+```
+
+## Security
+
+To protect your data, you must configure a firewall for the Respatch API in `config/packages/security.yaml`.
+
+Add the `respatch_api` firewall **before** your `main` firewall to ensure it has priority:
+
+```yaml
+# config/packages/security.yaml
+security:
+    firewalls:
+        respatch_api:
+            pattern: ^/_respatch/api
+            stateless: true
+            custom_authenticators:
+                - respatch.authenticator
+        
+        # Make sure it's above your main firewall
+        main:
+            # ...
+```
+
+This configuration ensures that all requests starting with `/_respatch/api` are authenticated using the token you provided in the configuration.
